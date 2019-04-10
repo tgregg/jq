@@ -854,5 +854,12 @@ jv jv_parse_sized(const char* string, int length) {
 }
 
 jv jv_parse(const char* string) {
-  return jv_parse_sized(string, strlen(string));
+  int force_ion = 1;
+  size_t length = strlen(string);
+  if ((length >= 4 && !memcmp("\xE0\x01\x01\xEA", string, 4))
+      || force_ion
+      || (length >= 8 && !memcmp("$ion_1_0", string, 8))) {
+    return jv_parse_sized_ion(string, length);
+  }
+  return jv_parse_sized(string, length);
 }
